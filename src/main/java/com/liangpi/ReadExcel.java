@@ -9,12 +9,10 @@ import java.util.*;
 
 
 public class ReadExcel {
-    //String为用户的名字，HashMap为客户的牛筋面和凉皮，字段只有这两个，每样都是一个月的数量
-    //private static LinkedHashMap<String, HashMap<String, List<Double>>> allData = new LinkedHashMap<String, HashMap<String, List<Double>>>();
-
     //解释：String为客户名，HashMap存客户每个月牛和皮各多少斤，里层的HashMap存的是日期和多少斤
     private static LinkedHashMap<String, HashMap<String, HashMap<Integer,Double>>> allData = new LinkedHashMap<>();
 
+    //可以配置
     //偏移量可以配置，这个offset指的是例如包二相对于香榭丽col的偏移
     private int offset = 5;
     private int leftTop = 4;
@@ -43,7 +41,7 @@ public class ReadExcel {
      * @param bottom 例如102是从31行结束，这时候传入的是30
      * @param offset 偏移，为了复用算法，例如包二，这时候相对香榭丽偏移则是6，香榭丽的偏移为0
      */
-    public void readExcel(XSSFSheet sheet, int top, int bottom, int offset) {
+    private void readExcel(XSSFSheet sheet, int top, int bottom, int offset) {
 
         //处理完之后blockMap初始化完毕，不规则数据写入了block里
         for (int i = top; i <= bottom; i++) {
@@ -56,8 +54,8 @@ public class ReadExcel {
             if (!blockMap.containsKey(name)) {
                 XSSFCell piCell = row.getCell(offset + 1);
                 XSSFCell niuCell = row.getCell(offset + 2);
-                double piNum = processCelltoDouble(piCell);
-                double niuNum = processCelltoDouble(niuCell);
+                double piNum = processCell2Double(piCell);
+                double niuNum = processCell2Double(niuCell);
                 processAllData(name, piNum, niuNum);
             } else {
                 HashMap<String, Object> dataMap = blockMap.get(name);
@@ -68,7 +66,7 @@ public class ReadExcel {
     }
 
 
-    public void readBlockExcel(XSSFSheet sheet) {
+    private void readBlockExcel(XSSFSheet sheet) {
         List<CellRangeAddress> mergedRegions = sheet.getMergedRegions();
         for (CellRangeAddress mergedRegion : mergedRegions) {
 
@@ -104,7 +102,7 @@ public class ReadExcel {
     }
 
     //算出凉皮特殊块的凉皮和和牛筋面和,例如车name
-    public void processBlockMap(XSSFSheet sheet, String name) {
+    private void processBlockMap(XSSFSheet sheet, String name) {
         HashMap<String, Object> stringIntegerHashMap = blockMap.get(name);
         Integer firstRow = (Integer) stringIntegerHashMap.get("firstRow");
         Integer lastRow = (Integer) stringIntegerHashMap.get("lastRow");
@@ -118,8 +116,8 @@ public class ReadExcel {
             //这里的firstColumn相当于车的列，由于车为1列，所以其和lastColumn一样；
             XSSFCell piCell = row.getCell(firstColumn + 1);
             XSSFCell niuCell = row.getCell(firstColumn + 2);
-            piSum += processCelltoDouble(piCell);
-            niuSum += processCelltoDouble(niuCell);
+            piSum += processCell2Double(piCell);
+            niuSum += processCell2Double(niuCell);
         }
         HashMap<String, Object> data = blockMap.get(name);
         data.put("皮", piSum);
@@ -147,7 +145,7 @@ public class ReadExcel {
         }
     }
 
-    private double processCelltoDouble(XSSFCell cell) {
+    private double processCell2Double(XSSFCell cell) {
         CellType cellType = cell.getCellType();
         if (CellType.STRING.equals(cellType)) {
             //如果是String，很可能是——
@@ -163,21 +161,15 @@ public class ReadExcel {
     }
 
 
-    public static LinkedHashMap<String, HashMap<String, HashMap<Integer, Double>>> getAllData() {
+    static LinkedHashMap<String, HashMap<String, HashMap<Integer, Double>>> getAllData() {
         return allData;
     }
 
-    public void setDate(Integer date) {
-        this.date = date;
+    void setDate(Integer date) {
+        ReadExcel.date = date;
     }
 
-    public Integer getDate() {
-        return date;
-    }
 
-    public static void setAllData(LinkedHashMap<String, HashMap<String, HashMap<Integer, Double>>> allData) {
-        ReadExcel.allData = allData;
-    }
 
 
 

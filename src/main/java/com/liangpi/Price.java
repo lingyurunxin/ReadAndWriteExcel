@@ -12,7 +12,7 @@ import java.util.Set;
 
 public class Price {
 
-    public static HashMap<String,String> priceMap = new HashMap<>();
+    static HashMap<String,String> priceMap = new HashMap<>();
     static {
         priceMap.put("秋","2.3,1.9");
         priceMap.put("何","2.1,1.6");
